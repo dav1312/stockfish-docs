@@ -1,51 +1,133 @@
-# Download <Badge type="info" text="16" />
+---
+title: "Download"
+description: "Download Stockfish for Windows, Android, MacOS, iOS, or Linux."
+---
 
-> **Note:** Stockfish is a [command line program](/pages/Stockfish-FAQ#executing-stockfish-opens-a-cmd-window). You may want to use it in your own [chess GUI](/pages/Download-and-usage#download-a-chess-gui).
+<h1>Download {{ releasesInfo.name || 'Stockfish' }}</h1>
 
-## Windows
+<div v-for="(files, os) in sortedReleases" :key="os">
+    <h2 :id="os" :class="{ 'current-os': isCurrentOs(os) }">{{ os }}</h2>
+    <ul v-if="files && files.length > 0">
+        <li v-for="file in sortedBinaries(files)" :key="file.name">
+            <a :href="file.url" target="_blank" rel="noopener noreferrer">{{ file.name }}</a>
+        </li>
+    </ul>
+</div>
 
-|  |  |
-|---|---|
-| ⚡️ Faster: Works on modern computers. | [Download ()](#) |
-| 🐢 More compatible: Is a bit slower, but works on the vast majority of computers. | [Download ()](#) |
+<script setup>
+import { ref, onMounted } from 'vue';
 
-If you're looking for binaries for a specific CPU architecture, [see all Windows binaries](/download/windows).
+const sortedReleases = ref({});
+const releasesInfo = ref({});
 
-## Android
+onMounted(async() => {
+    try {
+        const response = await fetch('https://api.github.com/repos/official-stockfish/stockfish/releases/latest');
+        const data = await response.json();
+        if (data.assets && data.assets.length > 0) {
+            const groupedReleases = {};
+            data.assets.forEach(asset => {
+                let os = getOSFromFileName(asset.name);
+                os = formatOsName(os);
+                if (!groupedReleases[os]) {
+                    groupedReleases[os] = [];
+                }
+                groupedReleases[os].push({
+                    name: asset.name,
+                    url: asset.browser_download_url,
+                });
+            });
+            sortedReleases.value = sortReleasesByUserOS(groupedReleases, getUserOS());
+            releasesInfo.value = data;
+        }
+    } catch (error) {
+        console.error('Error fetching releases:', error);
+    }
+});
 
-|  |  |
-|---|---|
-| ⚡️ Faster: Works on most Android devices. | [Download (ARMv8)](https://github.com/official-stockfish/Stockfish/releases/download/sf_16/stockfish-android-armv8.tar) |
-| 🐢 More compatible: Is slower, but works on older Android devices. | [Download (ARMv7)](https://github.com/official-stockfish/Stockfish/releases/download/sf_16/stockfish-android-armv7.tar) [Download (ARMv7 NEON)](https://github.com/official-stockfish/Stockfish/releases/download/sf_16/stockfish-android-armv7-neon.tar) |
+function getUserOS() {
+    const userAgent = navigator.userAgent.toLowerCase();
+    if (userAgent.includes("win")) return "Windows";
+    if (userAgent.includes("android") || userAgent.includes("raspberry")) return "ARM";
+    if (userAgent.includes("linux")) return "Linux";
+    if (userAgent.includes("mac")) return "MacOS";
+    return "";
+}
 
-## macOS
+function isCurrentOs(os) {
+    const userOs = getUserOS().toLowerCase();
+    return os.toLowerCase() === userOs;
+}
 
-The easiest way to get started is with the Stockfish app:
-[![macOS App Store](/svg/mac-app-store.svg)](https://itunes.apple.com/us/app/stockfish/id801463932?ls=1&mt=12)
+function getOSFromFileName(fileName) {
+    const parts = fileName.split('-');
+    return parts[1];
+}
 
-If you want the engine only, you can get it through [Homebrew](https://brew.sh): `brew install stockfish`
+function formatOsName(os) {
+    switch (os.toLowerCase()) {
+        case 'ubuntu':
+            return 'Linux';
+        case 'macos':
+            return 'MacOS';
+        case 'android':
+            return 'ARM';
+        default:
+            return os.charAt(0).toUpperCase() + os.slice(1);
+    }
+}
 
-## iOS
+function sortReleasesByUserOS(releases, userOs) {
+    if (!(userOs in releases)) return releases;
 
-One app that we recommend is SmallFish:
-[![iOS App Store](/svg/app-store.svg)](https://itunes.apple.com/us/app/smallfish-chess-for-iphone/id675049147?mt=8)
+    const sorted = { [userOs]: releases[userOs] };
+    for (const os in releases) {
+        if (os.toLowerCase() !== userOs.toLowerCase()) {
+            sorted[os] = releases[os];
+        }
+    }
+    return sorted;
+}
 
-## Linux
+function sortedBinaries(files) {
+  return files.sort((a, b) => customSortKey(a) - customSortKey(b));
+}
 
-|  |  |
-|---|---|
-| ⚡️ Faster: Works on modern computers. | [Download ()](#) |
-| 🐢 More compatible: Is a bit slower, but works on the vast majority of computers. | [Download ()](#) |
+function customSortKey(obj) {
+    const order = [
+        "apple-silicon",
+        "armv8-dotprod",
+        "armv8",
+        "armv7-neon",
+        "armv7",
+        "x86-64-vnni512",
+        "x86-64-vnni256",
+        "x86-64-avx512",
+        "x86-64-avxvnni",
+        "x86-64-bmi2",
+        "x86-64-avx2",
+        "x86-64-sse41-popcnt",
+        "x86-64-ssse3",
+        "x86-64-sse3-popcnt",
+        "x86-64",
+        "x86-32-sse41-popcnt",
+        "x86-32-sse2",
+        "x86-32",
+        "general-64",
+        "general-32",
+    ];
 
-If you're looking for binaries for a specific CPU architecture, [see all Linux binaries](/download/linux).
+    for (let i = 0; i < order.length; i++) {
+        if (obj.name.includes(order[i])) {
+            return i;
+        }
+    }
+    return order.length;
+}
+</script>
 
-## Source Code
-
-- [Stockfish engine on GitHub](https://github.com/official-stockfish/Stockfish)
-- [Download Stockfish 16 source (zip)](https://github.com/official-stockfish/Stockfish/archive/refs/tags/sf_16.zip)
-- [Stockfish for Mac on GitHub](https://github.com/daylen/stockfish-mac)
-
-## Other Versions
-
-- [Pre-release builds](https://github.com/official-stockfish/Stockfish/releases?q=prerelease%3Atrue)
-- [Old (archived) releases of Stockfish](https://drive.google.com/drive/folders/1nzrHOyZMFm4LATjF5ToRttCU0rHXGkXI?usp=share_link)
+<style scoped>
+.current-os {
+    color: var(--vp-c-brand);
+}
+</style>
