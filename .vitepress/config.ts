@@ -4,7 +4,7 @@ import { getSidebar } from 'vitepress-plugin-auto-sidebar'
 // https://vitepress.dev/reference/site-config
 export default defineConfig({
   title: "Stockfish",
-  description: "A strong open-source chess engine",
+  description: "Strong open-source chess engine",
   markdown: {
     languageAlias: {
       'cuda': 'c++'
@@ -17,6 +17,15 @@ export default defineConfig({
   lastUpdated: true,
 
   // cleanUrls: true,
+
+  head: [
+    ['link', { rel: 'icon', type: 'image/png', href: '/stockfish-docs/images/logo/favicon.png' }],
+    ['meta', { name: 'theme-color', content: '#2b6e44' }],
+    ['meta', { name: 'og:type', content: 'website' }],
+    ['meta', { name: 'og:locale', content: 'en' }],
+    ['meta', { name: 'og:site_name', content: 'Stockfish' }],
+    ['meta', { name: 'og:image', content: 'https://dav1312.github.io/stockfish-docs/images/logo/icon_128x128.png' }],
+  ],
 
   themeConfig: {
     logo: { src: "/images/logo/icon_128x128.png" },

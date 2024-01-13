@@ -1,10 +1,13 @@
 ---
+description: Download, documentation, technical details, and frequent questions.
+title: 'Stockfish - Strong open-source chess engine'
+
 # https://vitepress.dev/reference/default-theme-home-page
 layout: home
 
 hero:
   name: "Stockfish"
-  text: "A strong open-source chess engine"
+  text: "Strong open-source chess engine"
   tagline: Download, documentation, technical details, and frequent questions.
   image:
     src: /images/logo/icon_512x512@2x.png
@@ -20,12 +23,15 @@ features:
   - title: Strong
     details: Stockfish is a winner of the Top Chess Engine Championship, Chess.com Computer Chess Championship, and reliably tops rating lists.
     link: https://en.wikipedia.org/wiki/Stockfish_(chess)#Competition_results
+    linkText: View competition results
   - title: Open Source
     details: Stockfish is open source (GPLv3 license). That means you can read the code, modify it, and contribute back.
     link: https://github.com/official-stockfish/Stockfish
+    linkText: View source
   - title: Run Anywhere
     details: You can use Stockfish on your computer or on your iOS or Android device. So you can get world-class chess analysis, wherever you are.
-    link: /download
+    link: /download/
+    linkText: Download page
 ---
 
 <style scope>
